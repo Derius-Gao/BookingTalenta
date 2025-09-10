@@ -65,30 +65,4 @@ class RegisterController extends Controller
     /**
      * Send verification code to the provided email.
      */
-    public function sendVerificationCode(Request $request): JsonResponse
-    {
-        $request->validate([
-            'email' => ['required', 'email', 'max:255'],
-        ]);
-
-        $email = $request->email;
-        $code = (string) random_int(100000, 999999);
-
-        // Store the code in cache for 10 minutes
-        Cache::put('verification_code_' . $email, $code, now()->addMinutes(10));
-
-        try {
-            // Send the code using a Mailable class
-            Mail::to($email)->send(new VerificationCodeMail($code));
-            
-            return response()->json(['message' => 'Verification code sent successfully.']);
-        } catch (\Exception $e) {
-            \Log::error('Failed to send verification code: ' . $e->getMessage());
-            
-            return response()->json([
-                'message' => 'Failed to send verification code. Please try again.',
-                'error' => config('app.debug') ? $e->getMessage() : null
-            ], 500);
-        }
-    }
 }
